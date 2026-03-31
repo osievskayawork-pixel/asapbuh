@@ -10,8 +10,8 @@ if (window.Telegram?.WebApp) {
 // ─────────────────────────────────────────────
 // ⚠️  ВСТАВТЕ СВОЇ ДАНІ НИЖЧЕ
 // ─────────────────────────────────────────────
-const JSONBIN_API_KEY = '$2b$10$ЗАМІНІТЬ_ЦЕ_СВОЇМ_API_KEY';
-const JSONBIN_BIN_ID  = 'ЗАМІНІТЬ_ЦЕ_СВОЇМ_BIN_ID';
+const JSONBIN_API_KEY = $2a$10$xAyiLsfjc7iiTNafAWLhzuQF0r82sRQVF8JBHCozA.3abgquN4QDK;
+const JSONBIN_BIN_ID  = '69cba290aaba882197ae7e53';
 // ─────────────────────────────────────────────
 
 const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
