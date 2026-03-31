@@ -7,7 +7,7 @@ if (window.Telegram?.WebApp) {
   window.Telegram.WebApp.setHeaderColor('#0a0a0a')
 }
 
-const JSONBIN_API_KEY = '$2a$10$ojEMVIXJzgXaMJm6Y0554e8QOjfE51iTsAmM4H9KEJqfNl7SFRbX.K'
+const JSONBIN_API_KEY = '$2a$10$HBwc7qkgRWYcMTa6yMVA4eJmD6lSdx.8dy6/j9kqYg45qVFVwzBTe'
 const JSONBIN_BIN_ID  = '69cba290aaba882197ae7e53'
 
 const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`
