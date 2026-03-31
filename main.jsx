@@ -7,30 +7,73 @@ if (window.Telegram?.WebApp) {
   window.Telegram.WebApp.setHeaderColor('#0a0a0a');
 }
 
-window.storage = (() => {
-  const P = 'asap_';
-  return {
-    get: async (key) => {
-      const val = localStorage.getItem(P + key);
-      if (val === null) throw new Error('not found');
-      return { key, value: val };
-    },
-    set: async (key, value) => {
-      localStorage.setItem(P + key, value);
-      return { key, value };
-    },
-    delete: async (key) => {
-      localStorage.removeItem(P + key);
-      return { key, deleted: true };
-    },
-    list: async (prefix = '') => {
-      const keys = Object.keys(localStorage)
-        .filter(k => k.startsWith(P + prefix))
-        .map(k => k.slice(P.length));
-      return { keys };
-    }
-  };
-})();
+// ─────────────────────────────────────────────
+// ⚠️  ВСТАВТЕ СВОЇ ДАНІ НИЖЧЕ
+// ─────────────────────────────────────────────
+const JSONBIN_API_KEY = '$2b$10$ЗАМІНІТЬ_ЦЕ_СВОЇМ_API_KEY';
+const JSONBIN_BIN_ID  = 'ЗАМІНІТЬ_ЦЕ_СВОЇМ_BIN_ID';
+// ─────────────────────────────────────────────
+
+const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+const HEADERS  = {
+  'Content-Type': 'application/json',
+  'X-Master-Key': JSONBIN_API_KEY,
+  'X-Bin-Versioning': 'false',
+};
+
+let remoteCache = null;
+let cacheTs = 0;
+const CACHE_TTL = 3000;
+
+async function fetchBin() {
+  const now = Date.now();
+  if (remoteCache && now - cacheTs < CACHE_TTL) return remoteCache;
+  try {
+    const res = await fetch(BASE_URL + '/latest', { headers: HEADERS });
+    if (!res.ok) throw new Error('fetch failed');
+    const json = await res.json();
+    remoteCache = json.record || {};
+    cacheTs = now;
+    return remoteCache;
+  } catch {
+    return remoteCache || {};
+  }
+}
+
+async function writeBin(data) {
+  remoteCache = data;
+  cacheTs = Date.now();
+  await fetch(BASE_URL, {
+    method: 'PUT',
+    headers: HEADERS,
+    body: JSON.stringify(data),
+  });
+}
+
+window.storage = {
+  get: async (key) => {
+    const data = await fetchBin();
+    if (!(key in data)) throw new Error('not found');
+    return { key, value: data[key] };
+  },
+  set: async (key, value) => {
+    const data = await fetchBin();
+    data[key] = value;
+    await writeBin(data);
+    return { key, value };
+  },
+  delete: async (key) => {
+    const data = await fetchBin();
+    delete data[key];
+    await writeBin(data);
+    return { key, deleted: true };
+  },
+  list: async (prefix = '') => {
+    const data = await fetchBin();
+    const keys = Object.keys(data).filter(k => k.startsWith(prefix));
+    return { keys };
+  },
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode><App /></React.StrictMode>
