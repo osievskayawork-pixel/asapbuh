@@ -8,7 +8,7 @@ if (window.Telegram?.WebApp) {
 }
 
 const JSONBIN_API_KEY = '$2a$10$HBwc7qkgRWYcMTa6yMVA4eJmD6lSdx.8dy6/j9kqYg45qVFVwzBTe'
-const JSONBIN_BIN_ID  = '69cba290aaba882197ae7e53'
+const JSONBIN_BIN_ID  = '69cc1554aaba882197b09849'
 
 const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`
 const HEADERS  = {
