@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 
 // ─────────── BRAND ───────────
 const BRAND = {
-  black: "#0a0a0a", white: "#ffffff", red: "#E8281E",
-  gray: "#f0f0f0", darkGray: "#1a1a1a", midGray: "#888",
+  black: "#0a0a0a", white: "#ffffff", yellow: "#CCFF00",
+  purple: "#7B5CF6", gray: "#111111", darkGray: "#1a1a1a",
+  midGray: "#555", card: "#161616", cardBorder: "#2a2a2a",
 };
 
 const ROLE_COLORS = {
-  Кухар: "#0a0a0a", Офіціант: "#E8281E",
-  Адмін: "#444", Бармен: "#1a6b3a", Шеф: "#7a2e00",
+  Кухар: "#CCFF00", Офіціант: "#7B5CF6",
+  Адмін: "#FF6B35", Бармен: "#00E5CC", Шеф: "#FF3B7F",
 };
 
 // ─────────── STAFF ───────────
@@ -22,14 +23,14 @@ const INITIAL_STAFF = [
   { id: 7, name: "Юлія",     role: "Офіціант", rate: 500,  section: "hall" },
   { id: 8, name: "Максим",   role: "Офіціант", rate: 500,  section: "hall" },
   { id: 9, name: "Юлія А",   role: "Адмін",    rate: 0,    section: "admin" },
-  { id: 10, name: "Бармен",  role: "Бармен",   rate: 1500, section: "kitchen" },
+
 ];
 
 // ─────────── PINS & ACCESS ───────────
 const PINS = {
-  "1105": { role: "owner",  staffId: null, label: "Власник",  emoji: "👑",  color: "#7a2e00" },
-  "2222": { role: "admin",  staffId: null, label: "Адмін",    emoji: "📊",  color: "#444" },
-  "2215": { role: "chef",   staffId: null, label: "Шеф",      emoji: "👨‍🍳", color: "#1a6b3a" },
+  "1105": { role: "owner",  staffId: null, label: "Власник",  emoji: "👑",  color: "#CCFF00" },
+  "2222": { role: "admin",  staffId: null, label: "Адмін",    emoji: "📊",  color: "#7B5CF6" },
+  "2215": { role: "chef",   staffId: null, label: "Шеф",      emoji: "👨‍🍳", color: "#FF3B7F" },
   "1212": { role: "waiter", staffId: 6,  label: "Марія",    emoji: "🍽️", color: BRAND.red },
   "1209": { role: "waiter", staffId: 7,  label: "Юлія",     emoji: "🍽️", color: BRAND.red },
   "1915": { role: "waiter", staffId: 8,  label: "Максим",   emoji: "🍽️", color: BRAND.red },
@@ -80,7 +81,7 @@ const MONTHS = ["Січень","Лютий","Березень","Квітень",
 
 function getDIM(y, m) { return new Date(y, m + 1, 0).getDate(); }
 function fmt(n) { return Math.round(n).toLocaleString("uk-UA") + " ₴"; }
-function cc(pct) { return pct >= 100 ? "#1a6b3a" : pct >= 70 ? "#e08000" : BRAND.red; }
+function cc(pct) { return pct >= 100 ? "#4caf50" : pct >= 70 ? "#ffaa00" : "#ff4444"; }
 
 // ─────────── MESSAGE BOX ───────────
 function MessageBox({ staffId, canWrite, messages, replies, onSave, onReply, user }) {
@@ -90,6 +91,7 @@ function MessageBox({ staffId, canWrite, messages, replies, onSave, onReply, use
   const [replyDraft, setReplyDraft] = useState(reply);
   const [savedMsg, setSavedMsg] = useState(false);
   const [savedReply, setSavedReply] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => { setDraft(messages[staffId] || ""); }, [messages, staffId]);
   useEffect(() => { setReplyDraft(replies[staffId] || ""); }, [replies, staffId]);
@@ -101,55 +103,73 @@ function MessageBox({ staffId, canWrite, messages, replies, onSave, onReply, use
   const saveR = () => { onReply(staffId, replyDraft); setSavedReply(true); setTimeout(() => setSavedReply(false), 1500); };
 
   return (
-    <div style={{ margin: "0 12px 10px" }}>
-      {(canWrite || msg) && (
-        <div style={{ background: canWrite ? "#fffbea" : "#f0f7ff",
-          border: "1.5px solid " + (canWrite ? "#e6c800" : "#4a90d9"), borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em",
-            color: canWrite ? "#a07800" : "#2060a0", marginBottom: 6 }}>
-            {canWrite ? "✏️ Повідомлення керівника" : "📩 Повідомлення від керівника"}
+    <div style={{ margin: "0 12px 8px" }}>
+
+      {/* SUPERVISOR: collapsed button → opens form */}
+      {canWrite && !open && (
+        <button onClick={() => setOpen(true)} style={{
+          width: "100%", background: msg ? "#1a1800" : "transparent",
+          border: "1px solid " + (msg ? BRAND.yellow : "#2a2a2a"),
+          borderRadius: 10, padding: "9px 14px", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 8, marginBottom: 4
+        }}>
+          <span style={{ fontSize: 14 }}>✏️</span>
+          <span style={{ fontSize: 11, fontWeight: 800, color: msg ? BRAND.yellow : "#444",
+            textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            {msg ? "Повідомлення" : "Написати повідомлення"}
+          </span>
+          {reply && <span style={{ marginLeft: "auto", fontSize: 11, color: "#4caf50", fontWeight: 700 }}>💬 відповідь</span>}
+        </button>
+      )}
+
+      {canWrite && open && (
+        <div style={{ background: "#1a1800", border: "1.5px solid " + BRAND.yellow, borderRadius: 12, padding: "12px 14px", marginBottom: 4 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em", color: BRAND.yellow }}>
+              ✏️ Повідомлення
+            </span>
+            <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
           </div>
-          {canWrite ? (
-            <>
-              <textarea value={draft} onChange={e => setDraft(e.target.value)}
-                placeholder="Напишіть повідомлення для цього співробітника..."
-                style={{ ...inputStyle, width: "100%", minHeight: 60, resize: "vertical", fontSize: 13,
-                  fontWeight: 400, lineHeight: 1.5, boxSizing: "border-box", background: BRAND.white }} />
-              <button onClick={saveM} style={{ marginTop: 6, background: savedMsg ? "#1a6b3a" : BRAND.black,
-                color: BRAND.white, border: "none", borderRadius: 8, padding: "7px 18px",
-                fontWeight: 800, fontSize: 12, cursor: "pointer", transition: "background 0.2s" }}>
-                {savedMsg ? "✓ Збережено" : "Зберегти"}
-              </button>
-            </>
-          ) : (
-            <div style={{ fontSize: 14, color: "#1a1a1a", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{msg}</div>
-          )}
+          <textarea value={draft} onChange={e => setDraft(e.target.value)}
+            placeholder="Напишіть повідомлення..."
+            style={{ ...inputStyle, width: "100%", minHeight: 70, resize: "vertical", fontSize: 13,
+              fontWeight: 400, lineHeight: 1.5, boxSizing: "border-box" }} />
+          <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
+            <button onClick={saveM} style={{ background: savedMsg ? "#1a6b3a" : BRAND.yellow,
+              color: BRAND.black, border: "none", borderRadius: 8, padding: "8px 20px",
+              fontWeight: 800, fontSize: 12, cursor: "pointer" }}>
+              {savedMsg ? "✓ Збережено" : "Зберегти"}
+            </button>
+            {reply && <span style={{ fontSize: 11, color: "#4caf50", fontWeight: 600 }}>💬 {reply.slice(0,35)}{reply.length>35?"...":""}</span>}
+          </div>
         </div>
       )}
 
+      {/* WORKER: sees message from management */}
+      {!canWrite && msg && (
+        <div style={{ background: "#0d1433", border: "1.5px solid #7B5CF6", borderRadius: 12, padding: "12px 14px", marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em", color: "#7B5CF6", marginBottom: 6 }}>
+            📩 Повідомлення від керівника
+          </div>
+          <div style={{ fontSize: 14, color: BRAND.white, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{msg}</div>
+        </div>
+      )}
+
+      {/* WORKER: reply block */}
       {isWorker && (
-        <div style={{ background: "#f3fff3", border: "1.5px solid #7bcf7b", borderRadius: 10, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em", color: "#2a7a2a", marginBottom: 6 }}>
+        <div style={{ background: "#0a1a0a", border: "1px solid #2d6b2d", borderRadius: 12, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em", color: "#4caf50", marginBottom: 6 }}>
             ✍️ Ваша відповідь
           </div>
           <textarea value={replyDraft} onChange={e => setReplyDraft(e.target.value)}
             placeholder="Напишіть відповідь керівнику..."
             style={{ ...inputStyle, width: "100%", minHeight: 56, resize: "vertical", fontSize: 13,
-              fontWeight: 400, lineHeight: 1.5, boxSizing: "border-box", background: BRAND.white }} />
-          <button onClick={saveR} style={{ marginTop: 6, background: savedReply ? "#1a6b3a" : "#2a7a2a",
-            color: BRAND.white, border: "none", borderRadius: 8, padding: "7px 18px",
-            fontWeight: 800, fontSize: 12, cursor: "pointer", transition: "background 0.2s" }}>
+              fontWeight: 400, lineHeight: 1.5, boxSizing: "border-box" }} />
+          <button onClick={saveR} style={{ marginTop: 8, background: savedReply ? "#1a6b3a" : "#2d6b2d",
+            color: BRAND.white, border: "none", borderRadius: 8, padding: "8px 20px",
+            fontWeight: 800, fontSize: 12, cursor: "pointer" }}>
             {savedReply ? "✓ Надіслано" : "Надіслати"}
           </button>
-        </div>
-      )}
-
-      {canWrite && reply && (
-        <div style={{ background: "#f3fff3", border: "1.5px solid #7bcf7b", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em", color: "#2a7a2a", marginBottom: 6 }}>
-            💬 Відповідь співробітника
-          </div>
-          <div style={{ fontSize: 13, color: "#1a1a1a", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{reply}</div>
         </div>
       )}
     </div>
@@ -175,7 +195,7 @@ function ScheduleTab({ schedule, setSchedule, year, month, staff, activeSection,
   return (
     <div style={{ overflowX: "auto", paddingBottom: 80 }}>
       {!canEdit && (
-        <div style={{ padding: "8px 14px", background: "#f5f5f5", fontSize: 11, color: BRAND.midGray, borderBottom: "1px solid #e0e0e0" }}>
+        <div style={{ padding: "8px 14px", background: "#111", fontSize: 11, color: "#555", borderBottom: "1px solid #1f1f1f" }}>
           👁 Тільки перегляд
         </div>
       )}
@@ -192,7 +212,7 @@ function ScheduleTab({ schedule, setSchedule, year, month, staff, activeSection,
           {filtered.map((s, i) => {
             const count = getCount(s.id);
             return (
-              <tr key={s.id} style={{ background: i % 2 === 0 ? BRAND.white : "#fafafa" }}>
+              <tr key={s.id} style={{ background: "transparent" }}>
                 <td style={nameCS(s.role)}>
                   <div style={{ fontWeight: 700, fontSize: 13 }}>{s.name}</div>
                   <div style={{ fontSize: 10, color: ROLE_COLORS[s.role], fontWeight: 600 }}>{s.role}</div>
@@ -202,8 +222,8 @@ function ScheduleTab({ schedule, setSchedule, year, month, staff, activeSection,
                   return (
                     <td key={d} onClick={() => toggle(s.id, d)} style={{
                       textAlign: "center", cursor: canEdit ? "pointer" : "default", padding: "6px 2px",
-                      background: on ? BRAND.black : "transparent", color: on ? BRAND.white : BRAND.midGray,
-                      fontWeight: on ? 700 : 400, borderRight: "1px solid #eee", userSelect: "none", transition: "background 0.15s",
+                      background: on ? BRAND.yellow : "#161616", color: on ? BRAND.black : "#2a2a2a",
+                      fontWeight: on ? 900 : 400, border: "1px solid #222", userSelect: "none", transition: "background 0.1s", borderRadius: 4, margin: 1,
                     }}>{on ? "✓" : "·"}</td>
                   );
                 })}
@@ -329,7 +349,7 @@ function HallTab({ schedule, year, month, staff, user, messages, replies, onSave
 // ─────────── CHEF TAB ───────────
 function ChefTab() {
   const [kpi, setKpi] = useState({});
-  const [base, setBase] = useState(5000);
+  const [base, setBase] = useState(10000);
   const [adv, setAdv] = useState(0);
   const [stopDays, setStopDays] = useState(0);
   const [notes, setNotes] = useState({});
@@ -349,22 +369,22 @@ function ChefTab() {
     <div style={{ padding: "0 0 80px" }}>
       <SectionHeader title="ШЕФ / KPI" sub="База 5 000 ₴ + бонус до 10 000 ₴" />
       <div style={cardS}>
-        <label style={{...labelS, display:"block", marginBottom:4}}>Оклад (база)</label>
+        <label style={{fontSize:11, color:"#555", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", display:"block", marginBottom:8}}>Оклад (база)</label>
         <input type="number" value={base} onChange={e => setBase(Number(e.target.value))}
           style={{...inputStyle, width:"100%", fontSize:18, fontWeight:700, padding:"10px 12px"}} />
       </div>
 
       <div style={{...cardS, borderLeft:"4px solid "+cc(kpi.stoplist||0)}}>
-        <div style={{fontWeight:800, fontSize:13, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:8}}>🚫 Стоп-лист</div>
-        <div style={{fontSize:12, color:BRAND.midGray, marginBottom:10}}>Мета: <strong>≥15 днів</strong> без стопу на місяць</div>
+        <div style={{fontWeight:800, fontSize:13, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:8, color:BRAND.white}}>🚫 Стоп-лист</div>
+        <div style={{fontSize:12, color:"#666", marginBottom:10}}>Мета: <strong style={{color:BRAND.white}}>≥15 днів</strong> без стопу на місяць</div>
         <div style={{display:"flex", alignItems:"center", gap:10, marginBottom:8}}>
-          <span style={labelS}>Днів без стопу</span>
+          <span style={{fontSize:11, color:"#666", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase"}}>Днів без стопу</span>
           <input type="number" min="0" max="31" value={stopDays} onChange={e=>setStopDays(e.target.value)}
             style={{...inputStyle, width:64, textAlign:"center"}} />
-          <span style={{fontSize:12, color:BRAND.midGray}}>/ 15</span>
+          <span style={{fontSize:12, color:"#555", fontWeight:600}}>/ 15</span>
         </div>
         <div style={{display:"flex", alignItems:"center", gap:8}}>
-          <div style={{flex:1, height:8, background:"#e8e8e8", borderRadius:4, overflow:"hidden"}}>
+          <div style={{flex:1, height:8, background:"#1f1f1f", borderRadius:4, overflow:"hidden"}}>
             <div style={{height:"100%", width:`${Math.min(100,kpi.stoplist||0)}%`, background:cc(kpi.stoplist||0), borderRadius:4, transition:"width 0.3s"}} />
           </div>
           <span style={{fontWeight:800, fontSize:14, color:cc(kpi.stoplist||0)}}>{kpi.stoplist||0}%</span>
@@ -374,11 +394,11 @@ function ChefTab() {
         </div>
         <Divider label="Нотатки" />
         <textarea value={notes.stoplist||""} onChange={e=>setNotes(p=>({...p,stoplist:e.target.value}))}
-          placeholder="Причини стопів..." style={{...inputStyle, width:"100%", minHeight:56, resize:"vertical", fontSize:12, fontWeight:400, lineHeight:1.5, boxSizing:"border-box"}} />
+          placeholder="Причини стопів..." style={{...inputStyle, width:"100%", minHeight:56, resize:"vertical", fontSize:12, fontWeight:400, lineHeight:1.5, boxSizing:"border-box", color:BRAND.white}} />
       </div>
 
       <div style={cardS}>
-        <div style={{fontWeight:800, fontSize:14, letterSpacing:"0.08em", marginBottom:16, textTransform:"uppercase"}}>KPI Показники</div>
+        <div style={{fontWeight:800, fontSize:14, letterSpacing:"0.08em", marginBottom:16, textTransform:"uppercase", color:BRAND.white}}>KPI Показники</div>
         {CHEF_KPI_METRICS.filter(m=>m.id!=="stoplist").map(m => {
           const pct = Number(kpi[m.id]||0);
           const bonus = (pct/100)*m.maxBonus;
@@ -386,20 +406,20 @@ function ChefTab() {
           return (
             <div key={m.id} style={{marginBottom:20}}>
               <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4}}>
-                <span style={{fontSize:12, fontWeight:600, flex:1, paddingRight:8}}>{m.label}</span>
+                <span style={{fontSize:12, fontWeight:600, flex:1, paddingRight:8, color:BRAND.white}}>{m.label}</span>
                 <button onClick={()=>setHint(exp?null:m.id)} style={{background:"none", border:"none", cursor:"pointer", fontSize:14, color:BRAND.midGray, padding:0}}>{exp?"✕":"ℹ"}</button>
               </div>
               {exp && <div style={{background:"#f5f5f5", borderRadius:6, padding:"8px 10px", fontSize:11, color:"#555", marginBottom:8, lineHeight:1.5}}>{m.hint}</div>}
               <div style={{display:"flex", alignItems:"center", gap:10}}>
                 <input type="range" min="0" max="100" step="5" value={pct} onChange={e=>upd(m.id,e.target.value)} style={{flex:1, accentColor:cc(pct)}} />
                 <input type="number" min="0" max="100" value={pct} onChange={e=>upd(m.id,e.target.value)} style={{...inputStyle, width:52, textAlign:"center", padding:"4px 6px"}} />
-                <span style={{fontSize:11, color:BRAND.midGray}}>%</span>
+                <span style={{fontSize:11, color:"#666", fontWeight:700}}>%</span>
               </div>
               <div style={{display:"flex", justifyContent:"space-between", marginTop:4}}>
-                <div style={{height:4, flex:1, background:"#e8e8e8", borderRadius:2, overflow:"hidden", marginRight:8}}>
+                <div style={{height:4, flex:1, background:"#1f1f1f", borderRadius:2, overflow:"hidden", marginRight:8}}>
                   <div style={{height:"100%", width:`${pct}%`, background:cc(pct), borderRadius:2, transition:"width 0.3s"}} />
                 </div>
-                <span style={{fontSize:12, fontWeight:700, color:cc(pct), minWidth:60, textAlign:"right"}}>+{fmt(bonus)}</span>
+                <span style={{fontSize:12, fontWeight:800, color:cc(pct), minWidth:60, textAlign:"right", filter:"brightness(1.3)"}}>+{fmt(bonus)}</span>
               </div>
               {(m.id==="costcontrol"||m.id==="sanitation") && (
                 <textarea value={notes[m.id]||""} onChange={e=>setNotes(p=>({...p,[m.id]:e.target.value}))}
@@ -409,10 +429,10 @@ function ChefTab() {
             </div>
           );
         })}
-        <div style={{borderTop:"2px solid "+BRAND.black, paddingTop:12}}>
+        <div style={{borderTop:"1px solid #2a2a2a", paddingTop:12}}>
           <div style={{display:"flex", justifyContent:"space-between", fontSize:14}}>
-            <span style={{fontWeight:700}}>KPI бонус</span>
-            <span style={{fontWeight:800, color:BRAND.red}}>{fmt(totalBonus)}</span>
+            <span style={{fontWeight:700, color:BRAND.white}}>KPI бонус</span>
+            <span style={{fontWeight:800, color:BRAND.yellow}}>{fmt(totalBonus)}</span>
           </div>
         </div>
       </div>
@@ -435,7 +455,7 @@ function ChefTab() {
 // ─────────── ADMIN TAB ───────────
 function AdminTab() {
   const [kpi, setKpi] = useState({});
-  const [base, setBase] = useState(10000);
+  const [base, setBase] = useState(25000);
   const [adv, setAdv] = useState(0);
   const upd = (id, v) => setKpi(p => ({...p, [id]: Math.min(100,Math.max(0,Number(v)))}));
   const totalBonus = KPI_METRICS.reduce((s,m) => s+(Number(kpi[m.id]||0)/100)*m.maxBonus, 0);
@@ -446,39 +466,39 @@ function AdminTab() {
     <div style={{padding:"0 0 80px"}}>
       <SectionHeader title="АДМІН / KPI" sub="База + бонуси по KPI" />
       <div style={cardS}>
-        <label style={{...labelS, display:"block", marginBottom:4}}>Оклад (база)</label>
+        <label style={{fontSize:11, color:"#555", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", display:"block", marginBottom:8}}>Оклад (база)</label>
         <input type="number" value={base} onChange={e=>setBase(Number(e.target.value))}
           style={{...inputStyle, width:"100%", fontSize:18, fontWeight:700, padding:"10px 12px"}} />
       </div>
       <div style={cardS}>
-        <div style={{fontWeight:800, fontSize:14, letterSpacing:"0.08em", marginBottom:16, textTransform:"uppercase"}}>KPI Показники</div>
+        <div style={{fontWeight:800, fontSize:14, letterSpacing:"0.08em", marginBottom:16, textTransform:"uppercase", color:BRAND.white}}>KPI Показники</div>
         {KPI_METRICS.map(m => {
           const pct = Number(kpi[m.id]||0);
           const bonus = (pct/100)*m.maxBonus;
           return (
             <div key={m.id} style={{marginBottom:20}}>
               <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
-                <span style={{fontSize:12, fontWeight:600, flex:1, paddingRight:8}}>{m.label}</span>
-                <span style={{fontSize:11, color:BRAND.midGray}}>{m.weight*100}%</span>
+                <span style={{fontSize:12, fontWeight:600, flex:1, paddingRight:8, color:BRAND.white}}>{m.label}</span>
+                <span style={{fontSize:11, color:"#555", fontWeight:700}}>{m.weight*100}%</span>
               </div>
               <div style={{display:"flex", alignItems:"center", gap:10}}>
                 <input type="range" min="0" max="100" step="5" value={pct} onChange={e=>upd(m.id,e.target.value)} style={{flex:1, accentColor:cc(pct)}} />
                 <input type="number" min="0" max="100" value={pct} onChange={e=>upd(m.id,e.target.value)} style={{...inputStyle, width:52, textAlign:"center", padding:"4px 6px"}} />
-                <span style={{fontSize:11, color:BRAND.midGray}}>%</span>
+                <span style={{fontSize:11, color:"#666", fontWeight:700}}>%</span>
               </div>
               <div style={{display:"flex", justifyContent:"space-between", marginTop:4}}>
-                <div style={{height:4, flex:1, background:"#e8e8e8", borderRadius:2, overflow:"hidden", marginRight:8}}>
+                <div style={{height:4, flex:1, background:"#1f1f1f", borderRadius:2, overflow:"hidden", marginRight:8}}>
                   <div style={{height:"100%", width:`${pct}%`, background:cc(pct), borderRadius:2, transition:"width 0.3s"}} />
                 </div>
-                <span style={{fontSize:12, fontWeight:700, color:cc(pct), minWidth:60, textAlign:"right"}}>+{fmt(bonus)}</span>
+                <span style={{fontSize:12, fontWeight:800, color:cc(pct), minWidth:60, textAlign:"right", filter:"brightness(1.3)"}}>+{fmt(bonus)}</span>
               </div>
             </div>
           );
         })}
-        <div style={{borderTop:"2px solid "+BRAND.black, paddingTop:12}}>
+        <div style={{borderTop:"1px solid #2a2a2a", paddingTop:12}}>
           <div style={{display:"flex", justifyContent:"space-between", fontSize:14}}>
-            <span style={{fontWeight:700}}>KPI бонус</span>
-            <span style={{fontWeight:800, color:BRAND.red}}>{fmt(totalBonus)}</span>
+            <span style={{fontWeight:700, color:BRAND.white}}>KPI бонус</span>
+            <span style={{fontWeight:800, color:BRAND.yellow}}>{fmt(totalBonus)}</span>
           </div>
         </div>
       </div>
@@ -500,22 +520,22 @@ function AdminTab() {
 // ─────────── SHARED UI ───────────
 function SectionHeader({ title, sub }) {
   return (
-    <div style={{padding:"16px 16px 12px", borderBottom:"3px solid "+BRAND.black, marginBottom:12}}>
-      <div style={{fontWeight:900, fontSize:20, letterSpacing:"-0.02em", textTransform:"uppercase"}}>{title}</div>
-      {sub && <div style={{fontSize:12, color:BRAND.midGray, marginTop:2, fontWeight:500}}>{sub}</div>}
+    <div style={{padding:"16px 16px 12px", borderBottom:"1px solid #222", marginBottom:12}}>
+      <div style={{fontWeight:900, fontSize:20, letterSpacing:"-0.02em", textTransform:"uppercase", color:BRAND.white}}>{title}</div>
+      {sub && <div style={{fontSize:11, color:"#444", marginTop:4, fontWeight:600, letterSpacing:"0.06em", textTransform:"uppercase"}}>{sub}</div>}
     </div>
   );
 }
 function StaffCard({ name, role, children }) {
   return (
-    <div style={{...cardS, borderLeft:"4px solid "+(ROLE_COLORS[role]||BRAND.black)}}>
+    <div style={{...cardS, borderLeft:"3px solid "+(ROLE_COLORS[role]||BRAND.yellow)}}>
       <div style={{display:"flex", alignItems:"center", gap:10, marginBottom:14}}>
-        <div style={{width:36, height:36, borderRadius:"50%", background:ROLE_COLORS[role]||BRAND.black,
-          color:BRAND.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:14}}>
+        <div style={{width:36, height:36, borderRadius:10, background:ROLE_COLORS[role]||BRAND.yellow,
+          color:BRAND.black, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:14}}>
           {name[0]}
         </div>
         <div>
-          <div style={{fontWeight:800, fontSize:15}}>{name}</div>
+          <div style={{fontWeight:800, fontSize:15, color:BRAND.white}}>{name}</div>
           <div style={{fontSize:11, color:ROLE_COLORS[role], fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em"}}>{role}</div>
         </div>
       </div>
@@ -525,17 +545,17 @@ function StaffCard({ name, role, children }) {
 }
 function Row({ label, value, bold }) {
   return (
-    <div style={{display:"flex", justifyContent:"space-between", padding:"4px 0", fontSize:13}}>
-      <span style={{color:bold?BRAND.black:BRAND.midGray, fontWeight:bold?700:400}}>{label}</span>
-      <span style={{fontWeight:bold?800:600}}>{value}</span>
+    <div style={{display:"flex", justifyContent:"space-between", padding:"5px 0", fontSize:13}}>
+      <span style={{color:bold?BRAND.white:"#555", fontWeight:bold?700:500}}>{label}</span>
+      <span style={{fontWeight:bold?800:600, color:bold?BRAND.yellow:BRAND.white}}>{value}</span>
     </div>
   );
 }
 function Divider({ label }) {
   return (
     <div style={{margin:"10px 0 8px", display:"flex", alignItems:"center", gap:8}}>
-      {label && <span style={{fontSize:11, fontWeight:700, color:BRAND.midGray, whiteSpace:"nowrap", textTransform:"uppercase", letterSpacing:"0.06em"}}>{label}</span>}
-      <div style={{flex:1, height:1, background:"#e0e0e0"}} />
+      {label && <span style={{fontSize:10, fontWeight:800, color:"#444", whiteSpace:"nowrap", textTransform:"uppercase", letterSpacing:"0.1em"}}>{label}</span>}
+      <div style={{flex:1, height:1, background:"#222"}} />
     </div>
   );
 }
@@ -550,28 +570,28 @@ function MiniInput({ label, value, onChange, readOnly }) {
 }
 function FormulaNote({ text, result }) {
   return (
-    <div style={{background:"#f5f5f5", borderRadius:6, padding:"6px 10px", fontSize:11, color:BRAND.midGray, marginBottom:8}}>
-      <span>{text}</span><strong style={{color:BRAND.black}}>{result}</strong>
+    <div style={{background:"#1a1a1a", borderRadius:8, padding:"8px 12px", fontSize:11, color:"#666", marginBottom:8, border:"1px solid #2a2a2a"}}>
+      <span>{text}</span><strong style={{color:BRAND.yellow}}>{result}</strong>
     </div>
   );
 }
 function ResultRow({ label, value }) {
   return (
     <div style={{display:"flex", justifyContent:"space-between", alignItems:"center",
-      background:BRAND.black, borderRadius:8, padding:"10px 14px", marginTop:10}}>
-      <span style={{color:BRAND.white, fontWeight:700, fontSize:13, textTransform:"uppercase", letterSpacing:"0.05em"}}>{label}</span>
-      <span style={{color:BRAND.red, fontWeight:900, fontSize:18}}>{value}</span>
+      background:BRAND.yellow, borderRadius:14, padding:"12px 16px", marginTop:12}}>
+      <span style={{color:BRAND.black, fontWeight:800, fontSize:13, textTransform:"uppercase", letterSpacing:"0.06em"}}>{label}</span>
+      <span style={{color:BRAND.black, fontWeight:900, fontSize:20}}>{value}</span>
     </div>
   );
 }
 
-const cardS = { margin:"0 12px 12px", background:BRAND.white, borderRadius:12, padding:"16px", boxShadow:"0 2px 12px rgba(0,0,0,0.08)" };
-const labelS = { fontSize:12, color:BRAND.midGray, fontWeight:500 };
-const inputStyle = { border:"1.5px solid #ddd", borderRadius:6, padding:"6px 10px", fontSize:14, fontWeight:600, outline:"none", fontFamily:"inherit" };
-const thS = (f) => ({ padding:f?"10px 12px":"10px 4px", background:BRAND.black, color:BRAND.white, fontWeight:800, fontSize:f?12:11, textAlign:f?"left":"center", position:f?"sticky":"static", left:f?0:"auto", zIndex:f?10:1, borderRight:"1px solid #333", whiteSpace:"nowrap", letterSpacing:"0.05em" });
-const nameCS = (role) => ({ padding:"8px 12px", position:"sticky", left:0, background:BRAND.white, borderRight:"3px solid "+(ROLE_COLORS[role]||BRAND.black), zIndex:5, minWidth:100 });
-const tdS = { padding:"6px 6px", textAlign:"center", borderRight:"1px solid #eee", whiteSpace:"nowrap" };
-const navBtn = { background:"#222", color:BRAND.white, border:"none", borderRadius:6, width:32, height:32, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900 };
+const cardS = { margin:"0 12px 12px", background:BRAND.card, borderRadius:16, padding:"16px", border:"1px solid "+BRAND.cardBorder };
+const labelS = { fontSize:12, color:"#666", fontWeight:600, letterSpacing:"0.04em", textTransform:"uppercase" };
+const inputStyle = { border:"1.5px solid #333", borderRadius:10, padding:"8px 12px", fontSize:14, fontWeight:700, outline:"none", fontFamily:"inherit", background:"#1f1f1f", color:BRAND.white };
+const thS = (f) => ({ padding:f?"10px 12px":"8px 3px", background:"#0a0a0a", color:"#444", fontWeight:700, fontSize:f?11:10, textAlign:f?"left":"center", position:f?"sticky":"static", left:f?0:"auto", zIndex:f?10:1, borderRight:"none", borderBottom:"1px solid #1f1f1f", whiteSpace:"nowrap", letterSpacing:"0.06em", textTransform:"uppercase" });
+const nameCS = (role) => ({ padding:"8px 12px", position:"sticky", left:0, background:"#0a0a0a", borderRight:"2px solid "+(ROLE_COLORS[role]||BRAND.yellow), zIndex:5, minWidth:110 });
+const tdS = { padding:"5px 3px", textAlign:"center", borderRight:"none", whiteSpace:"nowrap", color:BRAND.white };
+const navBtn = { background:"#1f1f1f", color:BRAND.yellow, border:"1px solid #333", borderRadius:10, width:36, height:36, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900 };
 
 // ─────────── LOGIN ───────────
 function LoginScreen({ onLogin }) {
@@ -598,32 +618,58 @@ function LoginScreen({ onLogin }) {
 
   return (
     <div style={{fontFamily:"'Arial Black',Arial,sans-serif", minHeight:"100vh", background:BRAND.black,
-      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24}}>
-      <div style={{color:BRAND.white, fontWeight:900, fontSize:32, letterSpacing:"-0.03em", marginBottom:4}}>
-        ASAP <span style={{color:BRAND.red}}>BISTRO</span>
+      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24,
+      backgroundImage:"radial-gradient(circle, #1f1f1f 1px, transparent 1px)", backgroundSize:"28px 28px"}}>
+      
+      <div style={{marginBottom:8}}>
+        <div style={{
+          background:BRAND.yellow, borderRadius:16, padding:"6px 20px",
+          display:"inline-block", marginBottom:12
+        }}>
+          <span style={{color:BRAND.black, fontWeight:900, fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase"}}>
+            Внутрішня система
+          </span>
+        </div>
       </div>
-      <div style={{color:"#666", fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:48}}>
-        Внутрішня система
+      
+      <div style={{color:BRAND.white, fontWeight:900, fontSize:40, letterSpacing:"-0.04em", marginBottom:48, lineHeight:1}}>
+        ASAP<span style={{color:BRAND.yellow}}>.</span>
       </div>
-      <div style={{display:"flex", gap:16, marginBottom:12, animation:shake?"shake 0.4s":"none"}}>
+      
+      <div style={{display:"flex", gap:14, marginBottom:16, animation:shake?"shake 0.4s":"none"}}>
         {[0,1,2,3].map(i => (
-          <div key={i} style={{width:18, height:18, borderRadius:"50%",
-            background:pin.length>i?BRAND.red:"#333", border:"2px solid "+(pin.length>i?BRAND.red:"#555"), transition:"background 0.15s"}} />
+          <div key={i} style={{
+            width:14, height:14, borderRadius:4,
+            background:pin.length>i?BRAND.yellow:"#1f1f1f",
+            border:"1.5px solid "+(pin.length>i?BRAND.yellow:"#333"),
+            transition:"all 0.15s"
+          }} />
         ))}
       </div>
       {error
-        ? <div style={{color:BRAND.red, fontSize:12, fontWeight:700, marginBottom:8}}>{error}</div>
-        : <div style={{height:20, marginBottom:8}} />}
-      <div style={{display:"grid", gridTemplateColumns:"repeat(3, 72px)", gap:12}}>
+        ? <div style={{color:"#ff4444", fontSize:12, fontWeight:700, marginBottom:12, letterSpacing:"0.05em"}}>{error}</div>
+        : <div style={{height:28, marginBottom:0}} />}
+      
+      <div style={{display:"grid", gridTemplateColumns:"repeat(3, 72px)", gap:10}}>
         {digits.map((d,i) => {
           if (d==="") return <div key={i}/>;
           return (
             <button key={i}
               onClick={()=>d==="⌫"?setPin(p=>p.slice(0,-1)):handleDigit(d)}
-              style={{width:72, height:72, borderRadius:"50%",
-                background:d==="⌫"?"transparent":"#1a1a1a", border:d==="⌫"?"none":"1.5px solid #333",
+              style={{
+                width:72, height:72,
+                borderRadius:d==="⌫"?"50%":16,
+                background:d==="⌫"?"transparent":"#161616",
+                border:d==="⌫"?"none":"1px solid #2a2a2a",
                 color:BRAND.white, fontSize:d==="⌫"?22:24, fontWeight:800, cursor:"pointer",
-                display:"flex", alignItems:"center", justifyContent:"center"}}>
+                display:"flex", alignItems:"center", justifyContent:"center",
+                transition:"all 0.1s"
+              }}
+              onMouseDown={e => { if(d!=="⌫") e.currentTarget.style.background="#CCFF00"; e.currentTarget.style.color="#000" }}
+              onMouseUp={e => { e.currentTarget.style.background="#161616"; e.currentTarget.style.color="#fff" }}
+              onTouchStart={e => { if(d!=="⌫"){ e.currentTarget.style.background="#CCFF00"; e.currentTarget.style.color="#000" }}}
+              onTouchEnd={e => { e.currentTarget.style.background=d==="⌫"?"transparent":"#161616"; e.currentTarget.style.color="#fff" }}
+            >
               {d}
             </button>
           );
@@ -696,25 +742,25 @@ export default function ASAPBistroApp() {
   const nextM = () => { if(month===11){setYear(y=>y+1);setMonth(0);}else setMonth(m=>m+1); };
 
   return (
-    <div style={{fontFamily:"'Arial Black',Arial,sans-serif", background:BRAND.gray, minHeight:"100vh", maxWidth:500, margin:"0 auto"}}>
+    <div style={{fontFamily:"'Arial Black',Arial,sans-serif", background:"#0a0a0a", minHeight:"100vh", maxWidth:500, margin:"0 auto"}}>
       {/* HEADER */}
-      <div style={{background:BRAND.black, padding:"14px 16px 10px", position:"sticky", top:0, zIndex:100}}>
+      <div style={{background:"#0a0a0a", padding:"14px 16px 10px", position:"sticky", top:0, zIndex:100, borderBottom:"1px solid #1f1f1f"}}>
         <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
           <div>
             <div style={{color:BRAND.white, fontWeight:900, fontSize:22, letterSpacing:"-0.03em", lineHeight:1}}>
-              ASAP <span style={{color:BRAND.red}}>BISTRO</span>
+              ASAP <span style={{color:BRAND.yellow}}>BISTRO</span>
             </div>
-            <div style={{color:"#888", fontSize:10, letterSpacing:"0.1em", textTransform:"uppercase", marginTop:1}}>Внутрішня система</div>
+            <div style={{color:"#444", fontSize:10, letterSpacing:"0.15em", textTransform:"uppercase", marginTop:2}}>Внутрішня система</div>
           </div>
           <div style={{display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4}}>
             {saved && <div style={{color:"#4caf50", fontSize:11, fontWeight:700}}>{saved} Збережено</div>}
             <div style={{display:"flex", alignItems:"center", gap:6}}>
-              <div style={{background:user.color, borderRadius:12, padding:"3px 10px", fontSize:11,
-                fontWeight:800, color:BRAND.white, display:"flex", alignItems:"center", gap:4}}>
+              <div style={{background:user.color, borderRadius:10, padding:"4px 12px", fontSize:11,
+                fontWeight:800, color:user.role==="owner"?BRAND.black:BRAND.white, display:"flex", alignItems:"center", gap:4}}>
                 <span>{user.emoji}</span><span>{user.label}</span>
               </div>
-              <button onClick={()=>setUser(null)} style={{background:"#222", border:"none", color:"#888",
-                borderRadius:10, padding:"3px 8px", fontSize:10, cursor:"pointer", fontWeight:700}}>вихід</button>
+              <button onClick={()=>setUser(null)} style={{background:"transparent", border:"1px solid #333", color:"#555",
+                borderRadius:8, padding:"4px 10px", fontSize:10, cursor:"pointer", fontWeight:700}}>вихід</button>
             </div>
           </div>
         </div>
@@ -728,13 +774,13 @@ export default function ASAPBistroApp() {
       </div>
 
       {/* TABS */}
-      <div style={{display:"flex", background:BRAND.black, borderBottom:"3px solid "+BRAND.red, overflowX:"auto"}}>
+      <div style={{display:"flex", background:"#0a0a0a", borderBottom:"2px solid #1f1f1f", overflowX:"auto"}}>
         {tabs.map(t => (
           <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{
-            flex:1, padding:"10px 4px", background:activeTab===t.id?BRAND.red:"transparent",
-            color:BRAND.white, border:"none", fontWeight:800, fontSize:11, cursor:"pointer",
-            letterSpacing:"0.04em", textTransform:"uppercase", display:"flex", flexDirection:"column",
-            alignItems:"center", gap:2, transition:"background 0.15s"}}>
+            flex:1, padding:"10px 4px", background:"transparent",
+            color:activeTab===t.id?BRAND.yellow:"#444", border:"none", fontWeight:800, fontSize:11, cursor:"pointer",
+            letterSpacing:"0.06em", textTransform:"uppercase", display:"flex", flexDirection:"column",
+            alignItems:"center", gap:2, transition:"color 0.15s", borderBottom: activeTab===t.id ? "2px solid "+BRAND.yellow : "2px solid transparent"}}>
             <span style={{fontSize:16}}>{t.emoji}</span>
             <span>{t.label}</span>
           </button>
@@ -743,13 +789,13 @@ export default function ASAPBistroApp() {
 
       {/* SCHEDULE FILTER - supervisors only */}
       {activeTab==="schedule" && isSup(user.role) && (
-        <div style={{display:"flex", gap:6, padding:"10px 12px", background:"#f8f8f8", borderBottom:"1px solid #e0e0e0"}}>
+        <div style={{display:"flex", gap:6, padding:"10px 12px", background:"#0a0a0a", borderBottom:"1px solid #1f1f1f"}}>
           {[["all","Всі"],["kitchen","Кухня"],["hall","Зал"]].map(([id,label]) => (
             <button key={id} onClick={()=>setSchedSec(id)} style={{
               padding:"5px 12px", borderRadius:20, border:"1.5px solid "+BRAND.black,
-              background:schedSec===id?BRAND.black:"transparent",
-              color:schedSec===id?BRAND.white:BRAND.black,
-              fontWeight:700, fontSize:11, cursor:"pointer", textTransform:"uppercase", letterSpacing:"0.05em"}}>
+              background:schedSec===id?BRAND.yellow:"transparent",
+              color:schedSec===id?BRAND.black:"#555",
+              fontWeight:800, fontSize:11, cursor:"pointer", textTransform:"uppercase", letterSpacing:"0.07em", border:"1px solid "+(schedSec===id?BRAND.yellow:"#333")}}>
               {label}
             </button>
           ))}
