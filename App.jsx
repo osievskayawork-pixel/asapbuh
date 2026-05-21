@@ -14,31 +14,27 @@ const ROLE_COLORS = {
 
 // ─────────── STAFF ───────────
 const INITIAL_STAFF = [
-  { id: 1, name: "Катерина", role: "Кухар",    rate: 1500, section: "kitchen" },
-  { id: 2, name: "Микола",   role: "Кухар",    rate: 1500, section: "kitchen" },
-  { id: 3, name: "Яна",      role: "Кухар",    rate: 1500, section: "kitchen" },
-  { id: 4, name: "Віталій",  role: "Кухар",    rate: 1500, section: "kitchen" },
-  { id: 5, name: "Олексій",  role: "Кухар",    rate: 1500, section: "kitchen" },
-  { id: 6, name: "Марія",    role: "Офіціант", rate: 500,  section: "hall" },
-  { id: 7, name: "Юлія",     role: "Офіціант", rate: 500,  section: "hall" },
-  { id: 8, name: "Максим",   role: "Офіціант", rate: 500,  section: "hall" },
-  { id: 9, name: "Юлія А",   role: "Адмін",    rate: 0,    section: "admin" },
-
+  { id: 1, name: "Андрей",  role: "Кухар",    rate: 1600, section: "kitchen" },
+  { id: 2, name: "Дарина",  role: "Кухар",    rate: 1600, section: "kitchen" },
+  { id: 3, name: "Жужа",    role: "Кухар",    rate: 1600, section: "kitchen" },
+  { id: 4, name: "Яна",     role: "Кухар",    rate: 1600, section: "kitchen" },
+  { id: 5, name: "Маша",    role: "Офіціант", rate: 500,  section: "hall" },
+  { id: 6, name: "Максим",  role: "Офіціант", rate: 500,  section: "hall" },
+  { id: 7, name: "Юля",     role: "Адмін",    rate: 0,    section: "admin" },
+  { id: 8, name: "Роман",   role: "Шеф",      rate: 0,    section: "kitchen" },
 ];
 
 // ─────────── PINS & ACCESS ───────────
 const PINS = {
-  "1105": { role: "owner",  staffId: null, label: "Власник",  emoji: "👑",  color: "#CCFF00" },
-  "2222": { role: "admin",  staffId: null, label: "Адмін",    emoji: "📊",  color: "#7B5CF6" },
-  "2215": { role: "chef",   staffId: null, label: "Шеф",      emoji: "👨‍🍳", color: "#FF3B7F" },
-  "1212": { role: "waiter", staffId: 6,  label: "Марія",    emoji: "🍽️", color: BRAND.red },
-  "1209": { role: "waiter", staffId: 7,  label: "Юлія",     emoji: "🍽️", color: BRAND.red },
-  "1915": { role: "waiter", staffId: 8,  label: "Максим",   emoji: "🍽️", color: BRAND.red },
-  "3847": { role: "cook",   staffId: 1,  label: "Катерина", emoji: "🍳",  color: BRAND.black },
-  "7291": { role: "cook",   staffId: 2,  label: "Микола",   emoji: "🍳",  color: BRAND.black },
-  "4563": { role: "cook",   staffId: 3,  label: "Яна",      emoji: "🍳",  color: BRAND.black },
-  "8134": { role: "cook",   staffId: 4,  label: "Віталій",  emoji: "🍳",  color: BRAND.black },
-  "6729": { role: "cook",   staffId: 5,  label: "Олексій",  emoji: "🍳",  color: BRAND.black },
+  "1105": { role: "owner",  staffId: null, label: "Власник", emoji: "👑",  color: "#CCFF00" },
+  "2222": { role: "admin",  staffId: null, label: "Адмін",   emoji: "📊",  color: "#7B5CF6" },
+  "2215": { role: "chef",   staffId: null, label: "Шеф",     emoji: "👨‍🍳", color: "#FF3B7F" },
+  "1212": { role: "waiter", staffId: 5, label: "Маша",    emoji: "🍽️", color: "#7B5CF6" },
+  "1915": { role: "waiter", staffId: 6, label: "Максим",  emoji: "🍽️", color: "#7B5CF6" },
+  "3847": { role: "cook",   staffId: 1, label: "Андрей",  emoji: "🍳",  color: "#444" },
+  "7291": { role: "cook",   staffId: 2, label: "Дарина",  emoji: "🍳",  color: "#444" },
+  "4563": { role: "cook",   staffId: 3, label: "Жужа",    emoji: "🍳",  color: "#444" },
+  "8134": { role: "cook",   staffId: 4, label: "Яна",     emoji: "🍳",  color: "#444" },
 };
 
 const SUPERVISOR_ROLES = ["owner", "admin", "chef"];
@@ -214,8 +210,8 @@ function ScheduleTab({ schedule, setSchedule, year, month, staff, activeSection,
             return (
               <tr key={s.id} style={{ background: "transparent" }}>
                 <td style={nameCS(s.role)}>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>{s.name}</div>
-                  <div style={{ fontSize: 10, color: ROLE_COLORS[s.role], fontWeight: 600 }}>{s.role}</div>
+                  <div style={{ fontWeight: 800, fontSize: 12, color: BRAND.white, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{s.name}</div>
+                  <div style={{ fontSize: 9, color: ROLE_COLORS[s.role], fontWeight: 700, textTransform:"uppercase", letterSpacing:"0.04em" }}>{s.role}</div>
                 </td>
                 {daysArr.map(d => {
                   const on = schedule[`${year}-${month}-${s.id}-${d}`];
@@ -252,7 +248,7 @@ function KitchenTab({ schedule, year, month, staff, user, messages, replies, onS
 
   return (
     <div style={{ padding: "0 0 80px" }}>
-      <SectionHeader title="КУХНЯ / БАРИ" sub="1 500 ₴ / зміна" />
+      <SectionHeader title="КУХНЯ" sub="1 600 ₴ / зміна" />
       {kitchen.map(s => {
         const shifts = getCount(s.id);
         const gross = shifts * s.rate;
@@ -589,7 +585,7 @@ const cardS = { margin:"0 12px 12px", background:BRAND.card, borderRadius:16, pa
 const labelS = { fontSize:12, color:"#666", fontWeight:600, letterSpacing:"0.04em", textTransform:"uppercase" };
 const inputStyle = { border:"1.5px solid #333", borderRadius:10, padding:"8px 12px", fontSize:14, fontWeight:700, outline:"none", fontFamily:"inherit", background:"#1f1f1f", color:BRAND.white };
 const thS = (f) => ({ padding:f?"10px 12px":"8px 3px", background:"#0a0a0a", color:"#444", fontWeight:700, fontSize:f?11:10, textAlign:f?"left":"center", position:f?"sticky":"static", left:f?0:"auto", zIndex:f?10:1, borderRight:"none", borderBottom:"1px solid #1f1f1f", whiteSpace:"nowrap", letterSpacing:"0.06em", textTransform:"uppercase" });
-const nameCS = (role) => ({ padding:"8px 12px", position:"sticky", left:0, background:"#0a0a0a", borderRight:"2px solid "+(ROLE_COLORS[role]||BRAND.yellow), zIndex:5, minWidth:110 });
+const nameCS = (role) => ({ padding:"8px 10px", position:"sticky", left:0, background:"#0a0a0a", borderRight:"2px solid "+(ROLE_COLORS[role]||BRAND.yellow), zIndex:5, minWidth:90, maxWidth:90, width:90 });
 const tdS = { padding:"5px 3px", textAlign:"center", borderRight:"none", whiteSpace:"nowrap", color:BRAND.white };
 const navBtn = { background:"#1f1f1f", color:BRAND.yellow, border:"1px solid #333", borderRadius:10, width:36, height:36, fontSize:20, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900 };
 
