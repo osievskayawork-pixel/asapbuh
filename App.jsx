@@ -17,7 +17,7 @@ const INITIAL_STAFF = [
   { id: 1, name: "Андрей",  role: "Кухар",    rate: 1600, section: "kitchen" },
   { id: 2, name: "Дарина",  role: "Кухар",    rate: 1600, section: "kitchen" },
   { id: 3, name: "Жужа",    role: "Кухар",    rate: 1600, section: "kitchen" },
-  { id: 4, name: "Яна",     role: "Кухар",    rate: 1600, section: "kitchen" },
+  { id: 4, name: "Маша",    role: "Кухар",    rate: 1600, section: "kitchen" },
   { id: 5, name: "Маша",    role: "Офіціант", rate: 500,  section: "hall" },
   { id: 6, name: "Максим",  role: "Офіціант", rate: 500,  section: "hall" },
   { id: 7, name: "Юля",     role: "Адмін",    rate: 0,    section: "admin" },
@@ -34,7 +34,7 @@ const PINS = {
   "3847": { role: "cook",   staffId: 1, label: "Андрей",  emoji: "🍳",  color: "#444" },
   "7291": { role: "cook",   staffId: 2, label: "Дарина",  emoji: "🍳",  color: "#444" },
   "4563": { role: "cook",   staffId: 3, label: "Жужа",    emoji: "🍳",  color: "#444" },
-  "8134": { role: "cook",   staffId: 4, label: "Яна",     emoji: "🍳",  color: "#444" },
+  "8134": { role: "cook",   staffId: 4, label: "Маша",    emoji: "🍳",  color: "#444" },
 };
 
 const SUPERVISOR_ROLES = ["owner", "admin", "chef"];
